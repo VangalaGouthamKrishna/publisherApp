@@ -1,19 +1,34 @@
-#include <mosaiq/cyclicapp.h>
-#include <stdio.h>
+#include <mosaiqpp/app.hpp>
+#include <mosaiqpp/intercom/publication.hpp>
 
-int counter = 0;
+#include <iomanip>
+#include <sstream>
+#include <string>
 
-void DLL_EXPORT mosaiq_app_on_initialization()
+class PublisherApp : public MosaiqSdk::CyclicApp
 {
-  puts("stringpublisher was started");
-}
+public:
+  PublisherApp(MosaiqSdk::Intercom::Broker&& broker)
+    : MosaiqSdk::CyclicApp{std::move(broker)}
+    , m_cycleCount{0}
+    , m_integralPub{getBroker().template publish<uint32_t>("cycleCounter")}
+    , m_stringPub{getBroker().template publish<std::string>("cycleCounterHex")}
+  {}
 
-void DLL_EXPORT mosaiq_app_on_cyclic_execution()
-{
-  ++counter;
-}
+  void onCyclicExecution()
+  {
+    ++m_cycleCount;
+    m_integralPub.write(m_cycleCount);
 
-void DLL_EXPORT mosaiq_app_on_exit()
-{
-  puts("stringpublisher was stopped");
-}
+    std::stringstream sstr;
+    sstr << "0x" << std::hex << std::setfill('0') << std::setw(8) << m_cycleCount;
+    m_stringPub.write(sstr.str());
+  }
+
+private:
+  uint32_t m_cycleCount;
+  MosaiqSdk::Intercom::Publication<uint32_t> m_integralPub;
+  MosaiqSdk::Intercom::Publication<std::string> m_stringPub;
+};
+
+MOSAIQ_DECLARE_APP(PublisherApp);

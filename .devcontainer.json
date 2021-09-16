@@ -1,0 +1,16 @@
+{
+	"name": "Mosaiq Cyclic App C++",
+	"image": "mosaiq1/vscode-dev-cpp:latest",
+	"settings": {
+		"C_Cpp.default.includePath": [
+			"${workspaceFolder}/**",
+			"/home/vscode/mosaiq/sdk/include/**"
+		],
+		"mosaiq.binary.path": ["build","lib","libcyclicapp.so"]
+	},
+	"extensions": [
+		"ms-vscode.cpptools",
+		"ms-vscode-remote.remote-containers"
+	],
+	"remoteUser": "vscode"
+}
